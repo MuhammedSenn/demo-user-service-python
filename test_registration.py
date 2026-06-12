@@ -1,6 +1,6 @@
 import pytest
 
-from registration import register_user, users
+from registration import get_user_count, register_user, users
 
 
 def test_register_valid_email():
@@ -42,3 +42,16 @@ def test_register_invalid_email_raises_value_error(email):
     with pytest.raises(ValueError, match=r"^Invalid email format$"):
         register_user(email)
     assert users == []
+
+
+def test_get_user_count_returns_0_when_no_users_registered():
+    users.clear()
+    assert get_user_count() == 0
+
+
+def test_get_user_count_returns_correct_count_after_registrations():
+    users.clear()
+    register_user("user1@example.com")
+    assert get_user_count() == 1
+    register_user("user2@example.com")
+    assert get_user_count() == 2

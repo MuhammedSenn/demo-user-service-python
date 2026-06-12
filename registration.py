@@ -15,3 +15,7 @@ def register_user(email):
         raise ValueError("User already registered")
     users.append(email)
     return {"status": "registered", "email": email}
+
+
+def get_user_count():
+    return len(users)
