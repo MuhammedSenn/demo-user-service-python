@@ -31,6 +31,6 @@ def test_register_empty_or_whitespace_email_raises_value_error(email):
 )
 def test_register_invalid_email_raises_value_error(email):
     users.clear()
-    with pytest.raises(ValueError, match=r"^Invalid email format:"):
+    with pytest.raises(ValueError, match=r"^Invalid email format$"):
         register_user(email)
     assert users == []
