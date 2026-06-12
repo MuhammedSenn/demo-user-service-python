@@ -10,6 +10,14 @@ def test_register_valid_email():
     assert "user@example.com" in users
 
 
+def test_register_duplicate_email_raises_value_error():
+    users.clear()
+    register_user("user@example.com")
+    with pytest.raises(ValueError, match=r"^User already registered$"):
+        register_user("user@example.com")
+    assert users == ["user@example.com"]
+
+
 @pytest.mark.parametrize("email", ["", " ", "\t\n"])
 def test_register_empty_or_whitespace_email_raises_value_error(email):
     users.clear()
