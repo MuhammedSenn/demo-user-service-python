@@ -18,8 +18,19 @@ def test_register_empty_or_whitespace_email_raises_value_error(email):
     assert users == []
 
 
-def test_register_invalid_email_raises_value_error():
+@pytest.mark.parametrize(
+    "email",
+    [
+        "not-an-email",  # missing '@' and domain dot
+        "userexample.com",  # missing '@'
+        "user@@example.com",  # multiple '@'
+        "@example.com",  # empty local part
+        "user@",  # empty domain
+        "user@example",  # domain missing '.'
+    ],
+)
+def test_register_invalid_email_raises_value_error(email):
     users.clear()
-    with pytest.raises(ValueError, match=r"^Invalid email format$"):
-        register_user("not-an-email")
+    with pytest.raises(ValueError, match=r"^Invalid email format:"):
+        register_user(email)
     assert users == []
