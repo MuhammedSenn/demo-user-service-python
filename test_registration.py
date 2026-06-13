@@ -18,6 +18,21 @@ def test_register_duplicate_email_raises_value_error():
     assert users == ["user@example.com"]
 
 
+def test_register_duplicate_email_is_case_insensitive():
+    users.clear()
+    register_user("User@Example.com")
+    with pytest.raises(ValueError, match=r"^User already registered$"):
+        register_user("user@example.com")
+    assert users == ["user@example.com"]
+
+
+def test_register_stores_normalized_email():
+    users.clear()
+    result = register_user("  User@Example.com  ")
+    assert result["email"] == "user@example.com"
+    assert users == ["user@example.com"]
+
+
 @pytest.mark.parametrize("email", ["", " ", "\t\n"])
 def test_register_empty_or_whitespace_email_raises_value_error(email):
     users.clear()

@@ -9,6 +9,10 @@ _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 def register_user(email):
     if isinstance(email, str) and not email.strip():
         raise ValueError("Email is required")
+
+    if isinstance(email, str):
+        email = email.strip().lower()
+
     if not isinstance(email, str) or not _EMAIL_RE.match(email):
         raise ValueError("Invalid email format")
     if email in users:
