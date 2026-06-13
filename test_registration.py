@@ -1,6 +1,6 @@
 import pytest
 
-from registration import get_user, get_user_count, register_user, users
+from registration import get_user, get_user_count, list_users, register_user, users
 
 
 def test_register_valid_email():
@@ -82,3 +82,23 @@ def test_get_user_returns_none_when_not_registered():
     users.clear()
     register_user("user@example.com")
     assert get_user("other@example.com") is None
+
+
+def test_list_users_returns_all_registered_emails():
+    users.clear()
+    register_user("user1@example.com")
+    register_user("user2@example.com")
+    assert list_users() == ["user1@example.com", "user2@example.com"]
+
+
+def test_list_users_returns_copy_isolated_from_internal_users_list():
+    users.clear()
+    register_user("user1@example.com")
+    register_user("user2@example.com")
+
+    listed = list_users()
+    listed.append("user3@example.com")
+    listed.remove("user1@example.com")
+
+    assert users == ["user1@example.com", "user2@example.com"]
+    assert list_users() == ["user1@example.com", "user2@example.com"]
