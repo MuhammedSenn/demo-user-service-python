@@ -1,6 +1,6 @@
 import pytest
 
-from registration import get_user, get_user_count, register_user, users
+from registration import clear_users, get_user, get_user_count, register_user, users
 
 
 def test_register_valid_email():
@@ -82,3 +82,25 @@ def test_get_user_returns_none_when_not_registered():
     users.clear()
     register_user("user@example.com")
     assert get_user("other@example.com") is None
+
+
+def test_clear_users_removes_all_users_and_returns_removed_count():
+    users.clear()
+    register_user("user1@example.com")
+    register_user("user2@example.com")
+
+    removed = clear_users()
+
+    assert removed == 2
+    assert users == []
+    assert get_user_count() == 0
+
+
+def test_clear_users_returns_0_when_no_users_registered():
+    users.clear()
+
+    removed = clear_users()
+
+    assert removed == 0
+    assert users == []
+    assert get_user_count() == 0

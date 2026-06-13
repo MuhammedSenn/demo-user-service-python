@@ -33,3 +33,9 @@ def get_user(email):
 
 def get_user_count():
     return len(users)
+
+
+def clear_users():
+    removed = len(users)
+    users.clear()
+    return removed
