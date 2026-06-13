@@ -1,6 +1,6 @@
 import pytest
 
-from registration import get_user_count, register_user, users
+from registration import get_user, get_user_count, register_user, users
 
 
 def test_register_valid_email():
@@ -70,3 +70,15 @@ def test_get_user_count_returns_correct_count_after_registrations():
     assert get_user_count() == 1
     register_user("user2@example.com")
     assert get_user_count() == 2
+
+
+def test_get_user_returns_normalized_email_case_insensitively_when_registered():
+    users.clear()
+    register_user("user@example.com")
+    assert get_user("USER@Example.com") == "user@example.com"
+
+
+def test_get_user_returns_none_when_not_registered():
+    users.clear()
+    register_user("user@example.com")
+    assert get_user("other@example.com") is None

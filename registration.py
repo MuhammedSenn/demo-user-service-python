@@ -21,5 +21,15 @@ def register_user(email):
     return {"status": "registered", "email": email}
 
 
+def get_user(email):
+    if isinstance(email, str):
+        email = email.strip().lower()
+
+    if not isinstance(email, str):
+        return None
+
+    return email if email in users else None
+
+
 def get_user_count():
     return len(users)
