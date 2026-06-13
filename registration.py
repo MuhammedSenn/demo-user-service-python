@@ -21,6 +21,20 @@ def register_user(email):
     return {"status": "registered", "email": email}
 
 
+def unregister_user(email):
+    if isinstance(email, str):
+        email = email.strip().lower()
+
+    if not isinstance(email, str):
+        return False
+
+    try:
+        users.remove(email)
+    except ValueError:
+        return False
+    return True
+
+
 def get_user(email):
     if isinstance(email, str):
         email = email.strip().lower()
