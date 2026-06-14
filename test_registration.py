@@ -1,6 +1,6 @@
 import pytest
 
-from registration import get_user, get_user_count, register_user, users
+from registration import get_user, get_user_count, register_user, unregister_user, users
 
 
 def test_register_valid_email():
@@ -102,3 +102,48 @@ def test_get_user_returns_none_when_not_registered():
     users.clear()
     register_user("user@example.com")
     assert get_user("other@example.com") is None
+
+
+def test_unregister_registered_user_removes_user_and_returns_status():
+    users.clear()
+    register_user("user@example.com")
+    assert get_user_count() == 1
+
+    result = unregister_user("user@example.com")
+    assert result == {"status": "unregistered", "email": "user@example.com"}
+    assert get_user("user@example.com") is None
+    assert get_user_count() == 0
+    assert users == []
+
+
+def test_unregister_is_case_insensitive_and_normalizes_email():
+    users.clear()
+    register_user("user@example.com")
+
+    result = unregister_user("USER@Example.com")
+    assert result == {"status": "unregistered", "email": "user@example.com"}
+    assert users == []
+
+
+def test_unregister_nonexistent_user_raises_and_leaves_users_unchanged():
+    users.clear()
+    register_user("user@example.com")
+    before = list(users)
+
+    with pytest.raises(ValueError, match=r"^User not found$"):
+        unregister_user("other@example.com")
+
+    assert users == before
+    assert get_user_count() == 1
+
+
+@pytest.mark.parametrize("email", ["", " ", "\t\n"])
+def test_unregister_empty_or_whitespace_email_raises_value_error(email):
+    users.clear()
+    register_user("user@example.com")
+    before = list(users)
+
+    with pytest.raises(ValueError, match=r"^Email is required$"):
+        unregister_user(email)
+
+    assert users == before
