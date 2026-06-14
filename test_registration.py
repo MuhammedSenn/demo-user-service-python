@@ -5,6 +5,7 @@ from registration import (
     get_user_count,
     list_users,
     register_user,
+    register_users,
     unregister_user,
     update_user_email,
     users,
@@ -85,6 +86,35 @@ def test_register_normal_length_email_still_registers_successfully():
     assert result["status"] == "registered"
     assert result["email"] == email
     assert users == [email]
+
+
+def test_register_users_returns_per_email_report_and_does_not_abort_on_errors():
+    users.clear()
+    register_user("taken@example.com")
+
+    report = register_users(
+        [
+            "new@example.com",
+            "not-an-email",
+            "taken@example.com",
+            "  Another@Example.com  ",
+        ]
+    )
+
+    assert report == {
+        "results": [
+            {"status": "registered", "email": "new@example.com"},
+            {"status": "error", "email": "not-an-email", "error": "Invalid email format"},
+            {
+                "status": "error",
+                "email": "taken@example.com",
+                "error": "User already registered",
+            },
+            {"status": "registered", "email": "another@example.com"},
+        ]
+    }
+
+    assert sorted(users) == sorted(["taken@example.com", "new@example.com", "another@example.com"])
 
 
 def test_get_user_count_returns_0_when_no_users_registered():
