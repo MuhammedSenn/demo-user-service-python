@@ -59,6 +59,26 @@ def test_register_invalid_email_raises_value_error(email):
     assert users == []
 
 
+def test_register_email_too_long_raises_value_error():
+    users.clear()
+    # Ensure normalized email length is 255 (> 254) while still matching the simple format regex.
+    email = "a" * 243 + "@example.com"  # 243 + 12 = 255
+    assert len(email) == 255
+    with pytest.raises(ValueError, match=r"^Email is too long$"):
+        register_user(email)
+    assert users == []
+
+
+def test_register_normal_length_email_still_registers_successfully():
+    users.clear()
+    email = "a" * 242 + "@example.com"  # 242 + 12 = 254
+    assert len(email) == 254
+    result = register_user(email)
+    assert result["status"] == "registered"
+    assert result["email"] == email
+    assert users == [email]
+
+
 def test_get_user_count_returns_0_when_no_users_registered():
     users.clear()
     assert get_user_count() == 0
