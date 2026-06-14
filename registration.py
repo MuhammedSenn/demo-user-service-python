@@ -25,6 +25,25 @@ def register_user(email):
     return {"status": "registered", "email": email}
 
 
+def register_users(emails: list[str]) -> dict:
+    results = []
+    for email in emails:
+        try:
+            result = register_user(email)
+        except ValueError as exc:
+            results.append(
+                {
+                    "status": "error",
+                    "email": email,
+                    "error": str(exc),
+                }
+            )
+        else:
+            results.append(result)
+
+    return {"results": results}
+
+
 def update_user_email(old_email, new_email):
     if isinstance(old_email, str):
         old_email = old_email.strip().lower()
