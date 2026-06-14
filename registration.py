@@ -88,3 +88,7 @@ def get_user(email):
 
 def get_user_count():
     return len(users)
+
+
+def list_users():
+    return sorted(list(users))
