@@ -1,6 +1,13 @@
 import pytest
 
-from registration import get_user, get_user_count, register_user, unregister_user, users
+from registration import (
+    get_user,
+    get_user_count,
+    register_user,
+    unregister_user,
+    update_user_email,
+    users,
+)
 
 
 def test_register_valid_email():
@@ -146,4 +153,67 @@ def test_unregister_empty_or_whitespace_email_raises_value_error(email):
     with pytest.raises(ValueError, match=r"^Email is required$"):
         unregister_user(email)
 
+    assert users == before
+
+
+def test_update_user_email_successful_update():
+    users.clear()
+    register_user("old@example.com")
+
+    result = update_user_email("old@example.com", "new@example.com")
+    assert result == {
+        "status": "updated",
+        "old_email": "old@example.com",
+        "email": "new@example.com",
+    }
+    assert users == ["new@example.com"]
+
+
+def test_update_user_email_nonexistent_user_raises_and_leaves_users_unchanged():
+    users.clear()
+    register_user("user@example.com")
+    before = list(users)
+
+    with pytest.raises(ValueError, match=r"^User not found$"):
+        update_user_email("missing@example.com", "new@example.com")
+
+    assert users == before
+
+
+@pytest.mark.parametrize("new_email", ["", " ", "\t\n", "not-an-email"])
+def test_update_user_email_invalid_new_email_raises_and_leaves_users_unchanged(new_email):
+    users.clear()
+    register_user("old@example.com")
+    before = list(users)
+
+    expected = r"^Email is required$" if isinstance(new_email, str) and not new_email.strip() else r"^Invalid email format$"
+    with pytest.raises(ValueError, match=expected):
+        update_user_email("old@example.com", new_email)
+
+    assert users == before
+
+
+def test_update_user_email_new_email_collision_raises_and_leaves_users_unchanged():
+    users.clear()
+    register_user("old@example.com")
+    register_user("taken@example.com")
+    before = list(users)
+
+    with pytest.raises(ValueError, match=r"^User already registered$"):
+        update_user_email("old@example.com", "taken@example.com")
+
+    assert users == before
+
+
+def test_update_user_email_case_only_no_op_returns_success_and_leaves_users_unchanged():
+    users.clear()
+    register_user("user@example.com")
+    before = list(users)
+
+    result = update_user_email("USER@Example.com", "  User@Example.com  ")
+    assert result == {
+        "status": "updated",
+        "old_email": "user@example.com",
+        "email": "user@example.com",
+    }
     assert users == before
