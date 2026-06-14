@@ -15,6 +15,10 @@ def register_user(email):
 
     if not isinstance(email, str) or not _EMAIL_RE.match(email):
         raise ValueError("Invalid email format")
+
+    if len(email) > 254:
+        raise ValueError("Email is too long")
+
     if email in users:
         raise ValueError("User already registered")
     users.append(email)
