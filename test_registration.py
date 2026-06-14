@@ -3,6 +3,7 @@ import pytest
 from registration import (
     get_user,
     get_user_count,
+    list_users,
     register_user,
     unregister_user,
     update_user_email,
@@ -186,7 +187,11 @@ def test_update_user_email_invalid_new_email_raises_and_leaves_users_unchanged(n
     register_user("old@example.com")
     before = list(users)
 
-    expected = r"^Email is required$" if isinstance(new_email, str) and not new_email.strip() else r"^Invalid email format$"
+    expected = (
+        r"^Email is required$"
+        if isinstance(new_email, str) and not new_email.strip()
+        else r"^Invalid email format$"
+    )
     with pytest.raises(ValueError, match=expected):
         update_user_email("old@example.com", new_email)
 
@@ -217,3 +222,21 @@ def test_update_user_email_case_only_no_op_returns_success_and_leaves_users_unch
         "email": "user@example.com",
     }
     assert users == before
+
+
+def test_list_users_returns_empty_list_when_no_users_registered():
+    users.clear()
+    assert list_users() == []
+
+
+def test_list_users_returns_sorted_copy_of_registered_emails():
+    users.clear()
+    register_user("b@example.com")
+    register_user("a@example.com")
+
+    listed = list_users()
+    assert listed == ["a@example.com", "b@example.com"]
+
+    # Ensure it's a copy and not the internal list
+    listed.append("c@example.com")
+    assert users == ["b@example.com", "a@example.com"]
